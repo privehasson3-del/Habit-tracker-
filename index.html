@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Habit Grid">
+
+  <title>Habit Grid</title>
+
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="app">
+
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">MY ROUTINE</p>
+        <h1>Habit Grid</h1>
+      </div>
+
+      <button class="icon-button" id="addHabitBtn" aria-label="Add habit">
+        +
+      </button>
+    </header>
+
+    <main>
+
+      <section class="hero-card">
+        <div>
+          <span class="hero-label">TODAY</span>
+          <h2 id="todayDate">Today</h2>
+          <p id="dailyProgressText">0% completed</p>
+        </div>
+
+        <div class="progress-ring">
+          <span id="dailyProgress">0%</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">TRACK</p>
+            <h2>My Habits</h2>
+          </div>
+
+          <button class="text-button" id="todayBtn">Today</button>
+        </div>
+
+        <div class="calendar-header">
+          <button id="prevWeek">‹</button>
+          <div id="weekLabel"></div>
+          <button id="nextWeek">›</button>
+        </div>
+
+        <div class="habit-table">
+
+          <div class="table-head">
+            <div class="habit-title-cell">Habit</div>
+            <div id="dateHeaders" class="date-headers"></div>
+          </div>
+
+          <div id="habitRows"></div>
+
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">OVERVIEW</p>
+            <h2>Statistics</h2>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+
+          <div class="stat-card">
+            <span class="stat-number" id="totalHabits">0</span>
+            <span class="stat-label">Habits</span>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-number" id="completedToday">0</span>
+            <span class="stat-label">Today</span>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-number" id="bestStreak">0</span>
+            <span class="stat-label">Best streak</span>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-number" id="totalCompletions">0</span>
+            <span class="stat-label">Completed</span>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active">
+        <span>▦</span>
+        <small>Habits</small>
+      </button>
+
+      <button class="nav-item" id="statsNav">
+        <span>◔</span>
+        <small>Stats</small>
+      </button>
+
+      <button class="nav-item" id="addNav">
+        <span>＋</span>
+        <small>Add</small>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Add Habit Modal -->
+  <div class="modal hidden" id="habitModal">
+
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <h2>New Habit</h2>
+        <button id="closeModal">×</button>
+      </div>
+
+      <label for="habitName">Habit name</label>
+
+      <input
+        id="habitName"
+        type="text"
+        maxlength="40"
+        placeholder="e.g. Study"
+        autocomplete="off"
+      >
+
+      <button class="primary-button" id="saveHabit">
+        Add Habit
+      </button>
+
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+
+</body>
+</html>
