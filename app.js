@@ -423,6 +423,23 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("todayBtn")
     .addEventListener("click", goToToday);
+document
+  .getElementById("statsNav")
+  .addEventListener("click", () => {
+    const statsSection = document.querySelector(".stats-grid");
 
+    if (statsSection) {
+      statsSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    document.querySelectorAll(".nav-item").forEach((item) => {
+      item.classList.remove("active");
+    });
+
+    document.getElementById("statsNav").classList.add("active");
+  });
   renderAll();
 });
