@@ -6,11 +6,31 @@ const state = {
 };
 
 const defaultHabits = [
-  { id: crypto.randomUUID(), name: "Study", completed: {} },
-  { id: crypto.randomUUID(), name: "Workout", completed: {} },
-  { id: crypto.randomUUID(), name: "Read", completed: {} },
-  { id: crypto.randomUUID(), name: "Sleep on time", completed: {} }
+  {
+    id: crypto.randomUUID(),
+    name: "Study",
+    completed: {}
+  },
+  {
+    id: crypto.randomUUID(),
+    name: "Workout",
+    completed: {}
+  },
+  {
+    id: crypto.randomUUID(),
+    name: "Read",
+    completed: {}
+  },
+  {
+    id: crypto.randomUUID(),
+    name: "Sleep on time",
+    completed: {}
+  }
 ];
+
+/* =========================
+   STORAGE
+========================= */
 
 function loadData() {
   try {
@@ -41,6 +61,10 @@ function saveData() {
   );
 }
 
+/* =========================
+   DATE HELPERS
+========================= */
+
 function dateKey(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -51,6 +75,7 @@ function dateKey(date) {
 
 function getMonday(date) {
   const d = new Date(date);
+
   d.setHours(0, 0, 0, 0);
 
   const day = d.getDay();
@@ -63,7 +88,9 @@ function getMonday(date) {
 
 function addDays(date, amount) {
   const result = new Date(date);
+
   result.setDate(result.getDate() + amount);
+
   return result;
 }
 
@@ -74,16 +101,24 @@ function formatDate(date) {
   });
 }
 
+/* =========================
+   WEEK
+========================= */
+
 function renderWeek() {
   const headers = document.getElementById("dateHeaders");
   const weekLabel = document.getElementById("weekLabel");
+
+  if (!headers || !weekLabel) return;
 
   headers.innerHTML = "";
 
   const dates = [];
 
   for (let i = 0; i < 7; i++) {
-    dates.push(addDays(state.currentWeekStart, i));
+    dates.push(
+      addDays(state.currentWeekStart, i)
+    );
   }
 
   weekLabel.textContent =
@@ -91,20 +126,31 @@ function renderWeek() {
 
   dates.forEach((date) => {
     const header = document.createElement("div");
+
     header.className = "date-header";
 
-    if (dateKey(date) === dateKey(new Date())) {
+    if (
+      dateKey(date) ===
+      dateKey(new Date())
+    ) {
       header.classList.add("today");
     }
 
     const day = document.createElement("span");
+
     day.className = "day";
-    day.textContent = date.toLocaleDateString(undefined, {
-      weekday: "short"
-    }).slice(0, 2);
+
+    day.textContent =
+      date
+        .toLocaleDateString(undefined, {
+          weekday: "short"
+        })
+        .slice(0, 2);
 
     const number = document.createElement("span");
+
     number.className = "number";
+
     number.textContent = date.getDate();
 
     header.appendChild(day);
@@ -114,52 +160,94 @@ function renderWeek() {
   });
 }
 
+/* =========================
+   HABITS
+========================= */
+
 function renderHabits() {
-  const container = document.getElementById("habitRows");
+  const container =
+    document.getElementById("habitRows");
+
+  if (!container) return;
 
   container.innerHTML = "";
 
   if (state.habits.length === 0) {
     const empty = document.createElement("div");
+
     empty.className = "empty-state";
-    empty.textContent = "No habits yet. Add your first habit.";
+
+    empty.textContent =
+      "No habits yet. Add your first habit.";
+
     container.appendChild(empty);
+
     return;
   }
 
   state.habits.forEach((habit) => {
     const row = document.createElement("div");
+
     row.className = "habit-row";
 
-    const nameCell = document.createElement("div");
+    /* Habit name */
+
+    const nameCell =
+      document.createElement("div");
+
     nameCell.className = "habit-name";
 
-    const name = document.createElement("span");
+    const name =
+      document.createElement("span");
+
     name.className = "habit-name-text";
+
     name.textContent = habit.name;
 
-    const deleteButton = document.createElement("button");
-    deleteButton.className = "habit-delete";
-    deleteButton.textContent = "×";
-    deleteButton.title = "Delete habit";
+    /* Delete */
 
-    deleteButton.addEventListener("click", () => {
-      deleteHabit(habit.id);
-    });
+    const deleteButton =
+      document.createElement("button");
+
+    deleteButton.className =
+      "habit-delete";
+
+    deleteButton.textContent = "×";
+
+    deleteButton.title =
+      "Delete habit";
+
+    deleteButton.addEventListener(
+      "click",
+      () => {
+        deleteHabit(habit.id);
+      }
+    );
 
     nameCell.appendChild(name);
     nameCell.appendChild(deleteButton);
 
     row.appendChild(nameCell);
 
+    /* Seven days */
+
     for (let i = 0; i < 7; i++) {
-      const date = addDays(state.currentWeekStart, i);
+      const date =
+        addDays(
+          state.currentWeekStart,
+          i
+        );
+
       const key = dateKey(date);
 
-      const cell = document.createElement("div");
+      const cell =
+        document.createElement("div");
+
       cell.className = "day-cell";
 
-      const check = document.createElement("button");
+      const check =
+        document.createElement("button");
+
       check.className = "check";
 
       if (habit.completed[key]) {
@@ -171,9 +259,15 @@ function renderHabits() {
         `${habit.name} ${key}`
       );
 
-      check.addEventListener("click", () => {
-        toggleHabit(habit.id, key);
-      });
+      check.addEventListener(
+        "click",
+        () => {
+          toggleHabit(
+            habit.id,
+            key
+          );
+        }
+      );
 
       cell.appendChild(check);
       row.appendChild(cell);
@@ -183,43 +277,75 @@ function renderHabits() {
   });
 }
 
-function toggleHabit(habitId, key) {
-  const habit = state.habits.find(
-    (item) => item.id === habitId
-  );
+/* =========================
+   TOGGLE HABIT
+========================= */
+
+function toggleHabit(
+  habitId,
+  key
+) {
+  const habit =
+    state.habits.find(
+      (item) =>
+        item.id === habitId
+    );
 
   if (!habit) return;
 
-  habit.completed[key] = !habit.completed[key];
+  habit.completed[key] =
+    !habit.completed[key];
 
   saveData();
+
   renderAll();
 }
 
+/* =========================
+   DELETE HABIT
+========================= */
+
 function deleteHabit(habitId) {
-  const habit = state.habits.find(
-    (item) => item.id === habitId
-  );
+  const habit =
+    state.habits.find(
+      (item) =>
+        item.id === habitId
+    );
 
   if (!habit) return;
 
-  const confirmed = confirm(
-    `Delete "${habit.name}"?`
-  );
+  const confirmed =
+    confirm(
+      `Delete "${habit.name}"?`
+    );
 
   if (!confirmed) return;
 
-  state.habits = state.habits.filter(
-    (item) => item.id !== habitId
-  );
+  state.habits =
+    state.habits.filter(
+      (item) =>
+        item.id !== habitId
+    );
 
   saveData();
+
   renderAll();
 }
 
+/* =========================
+   ADD HABIT
+========================= */
+
 function addHabit() {
-  const input = document.getElementById("habitName");
-  const name = input.value.trim();
+  const input =
+    document.getElementById(
+      "habitName"
+    );
+
+  if (!input) return;
+
+  const name =
+    input.value.trim();
 
   if (!name) {
     input.focus();
@@ -235,57 +361,104 @@ function addHabit() {
   saveData();
 
   input.value = "";
+
   closeModal();
+
   renderAll();
 }
 
-function openModal() {
-  const modal = document.getElementById("habitModal");
+/* =========================
+   MODAL
+========================= */
 
-  modal.classList.remove("hidden");
+function openModal() {
+  const modal =
+    document.getElementById(
+      "habitModal"
+    );
+
+  if (!modal) return;
+
+  modal.classList.remove(
+    "hidden"
+  );
 
   setTimeout(() => {
-    document.getElementById("habitName").focus();
+    const input =
+      document.getElementById(
+        "habitName"
+      );
+
+    if (input) {
+      input.focus();
+    }
   }, 100);
 }
 
 function closeModal() {
-  document
-    .getElementById("habitModal")
-    .classList.add("hidden");
+  const modal =
+    document.getElementById(
+      "habitModal"
+    );
+
+  if (!modal) return;
+
+  modal.classList.add(
+    "hidden"
+  );
 }
 
+/* =========================
+   NAVIGATION
+========================= */
+
 function goToToday() {
-  state.currentWeekStart = getMonday(new Date());
+  state.currentWeekStart =
+    getMonday(new Date());
+
   renderAll();
 }
 
 function changeWeek(amount) {
-  state.currentWeekStart = addDays(
-    state.currentWeekStart,
-    amount * 7
-  );
+  state.currentWeekStart =
+    addDays(
+      state.currentWeekStart,
+      amount * 7
+    );
 
   renderAll();
 }
 
+/* =========================
+   STATISTICS
+========================= */
+
 function calculateTodayStats() {
-  const today = dateKey(new Date());
+  const today =
+    dateKey(new Date());
 
   let completed = 0;
 
-  state.habits.forEach((habit) => {
-    if (habit.completed[today]) {
-      completed++;
+  state.habits.forEach(
+    (habit) => {
+      if (
+        habit.completed &&
+        habit.completed[today]
+      ) {
+        completed++;
+      }
     }
-  });
+  );
 
-  const total = state.habits.length;
+  const total =
+    state.habits.length;
 
   const percentage =
     total === 0
       ? 0
-      : Math.round((completed / total) * 100);
+      : Math.round(
+          (completed / total) * 100
+        );
 
   return {
     completed,
@@ -297,11 +470,19 @@ function calculateTodayStats() {
 function calculateTotalCompletions() {
   let total = 0;
 
-  state.habits.forEach((habit) => {
-    Object.values(habit.completed).forEach((value) => {
-      if (value) total++;
-    });
-  });
+  state.habits.forEach(
+    (habit) => {
+      if (!habit.completed) return;
+
+      Object.values(
+        habit.completed
+      ).forEach((value) => {
+        if (value) {
+          total++;
+        }
+      });
+    }
+  );
 
   return total;
 }
@@ -309,67 +490,142 @@ function calculateTotalCompletions() {
 function calculateBestStreak() {
   let best = 0;
 
-  state.habits.forEach((habit) => {
-    const dates = Object.keys(habit.completed)
-      .filter((key) => habit.completed[key])
-      .sort();
+  state.habits.forEach(
+    (habit) => {
+      if (!habit.completed) return;
 
-    let streak = 0;
-    let previous = null;
+      const dates =
+        Object.keys(
+          habit.completed
+        )
+          .filter(
+            (key) =>
+              habit.completed[key]
+          )
+          .sort();
 
-    dates.forEach((key) => {
-      const current = new Date(`${key}T00:00:00`);
+      let streak = 0;
+      let previous = null;
 
-      if (previous) {
-        const difference =
-          (current - previous) /
-          (1000 * 60 * 60 * 24);
+      dates.forEach((key) => {
+        const current =
+          new Date(
+            `${key}T00:00:00`
+          );
 
-        if (difference === 1) {
-          streak++;
+        if (previous) {
+          const difference =
+            (current - previous) /
+            (1000 * 60 * 60 * 24);
+
+          if (difference === 1) {
+            streak++;
+          } else {
+            streak = 1;
+          }
         } else {
           streak = 1;
         }
-      } else {
-        streak = 1;
-      }
 
-      best = Math.max(best, streak);
-      previous = current;
-    });
-  });
+        best =
+          Math.max(
+            best,
+            streak
+          );
+
+        previous = current;
+      });
+    }
+  );
 
   return best;
 }
 
 function updateStats() {
-  const stats = calculateTodayStats();
+  const stats =
+    calculateTodayStats();
 
-  document.getElementById("totalHabits").textContent =
-    stats.total;
+  const totalHabits =
+    document.getElementById(
+      "totalHabits"
+    );
 
-  document.getElementById("completedToday").textContent =
-    stats.completed;
+  const completedToday =
+    document.getElementById(
+      "completedToday"
+    );
 
-  document.getElementById("totalCompletions").textContent =
-    calculateTotalCompletions();
+  const totalCompletions =
+    document.getElementById(
+      "totalCompletions"
+    );
 
-  document.getElementById("bestStreak").textContent =
-    calculateBestStreak();
+  const bestStreak =
+    document.getElementById(
+      "bestStreak"
+    );
 
-  document.getElementById("dailyProgress").textContent =
-    `${stats.percentage}%`;
+  const dailyProgress =
+    document.getElementById(
+      "dailyProgress"
+    );
 
-  document.getElementById("dailyProgressText").textContent =
-    `${stats.percentage}% completed`;
+  const dailyProgressText =
+    document.getElementById(
+      "dailyProgressText"
+    );
 
-  document.getElementById("todayDate").textContent =
-    new Date().toLocaleDateString(undefined, {
-      weekday: "long",
-      month: "long",
-      day: "numeric"
-    });
+  const todayDate =
+    document.getElementById(
+      "todayDate"
+    );
+
+  if (totalHabits) {
+    totalHabits.textContent =
+      stats.total;
+  }
+
+  if (completedToday) {
+    completedToday.textContent =
+      stats.completed;
+  }
+
+  if (totalCompletions) {
+    totalCompletions.textContent =
+      calculateTotalCompletions();
+  }
+
+  if (bestStreak) {
+    bestStreak.textContent =
+      calculateBestStreak();
+  }
+
+  if (dailyProgress) {
+    dailyProgress.textContent =
+      `${stats.percentage}%`;
+  }
+
+  if (dailyProgressText) {
+    dailyProgressText.textContent =
+      `${stats.percentage}% completed`;
+  }
+
+  if (todayDate) {
+    todayDate.textContent =
+      new Date().toLocaleDateString(
+        undefined,
+        {
+          weekday: "long",
+          month: "long",
+          day: "numeric"
+        }
+      );
+  }
 }
+
+/* =========================
+   RENDER EVERYTHING
+========================= */
 
 function renderAll() {
   renderWeek();
@@ -377,69 +633,191 @@ function renderAll() {
   updateStats();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadData();
+/* =========================
+   STATS NAVIGATION
+========================= */
 
-  document
-    .getElementById("addHabitBtn")
-    .addEventListener("click", openModal);
+function openStats() {
+  const statsSection =
+    document.querySelector(
+      ".stats-grid"
+    );
 
-  document
-    .getElementById("addNav")
-    .addEventListener("click", openModal);
+  if (!statsSection) {
+    console.warn(
+      "Stats section not found."
+    );
 
-  document
-    .getElementById("closeModal")
-    .addEventListener("click", closeModal);
+    return;
+  }
 
-  document
-    .getElementById("modalBackdrop")
-    .addEventListener("click", closeModal);
+  statsSection.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+}
 
-  document
-    .getElementById("saveHabit")
-    .addEventListener("click", addHabit);
+/* =========================
+   APP START
+========================= */
 
-  document
-    .getElementById("habitName")
-    .addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        addHabit();
-      }
-    });
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+    loadData();
 
-  document
-    .getElementById("prevWeek")
-    .addEventListener("click", () => {
-      changeWeek(-1);
-    });
+    /* Add button */
 
-  document
-    .getElementById("nextWeek")
-    .addEventListener("click", () => {
-      changeWeek(1);
-    });
+    const addHabitBtn =
+      document.getElementById(
+        "addHabitBtn"
+      );
 
-  document
-    .getElementById("todayBtn")
-    .addEventListener("click", goToToday);
-document
-  .getElementById("statsNav")
-  .addEventListener("click", () => {
-    const statsSection = document.querySelector(".stats-grid");
-
-    if (statsSection) {
-      statsSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+    if (addHabitBtn) {
+      addHabitBtn.addEventListener(
+        "click",
+        openModal
+      );
     }
 
-    document.querySelectorAll(".nav-item").forEach((item) => {
-      item.classList.remove("active");
-    });
+    /* Bottom Add */
 
-    document.getElementById("statsNav").classList.add("active");
-  });
-  renderAll();
-});
+    const addNav =
+      document.getElementById(
+        "addNav"
+      );
+
+    if (addNav) {
+      addNav.addEventListener(
+        "click",
+        openModal
+      );
+    }
+
+    /* Stats */
+
+    const statsNav =
+      document.getElementById(
+        "statsNav"
+      );
+
+    if (statsNav) {
+      statsNav.addEventListener(
+        "click",
+        openStats
+      );
+    }
+
+    /* Close modal */
+
+    const closeModalButton =
+      document.getElementById(
+        "closeModal"
+      );
+
+    if (closeModalButton) {
+      closeModalButton.addEventListener(
+        "click",
+        closeModal
+      );
+    }
+
+    /* Modal backdrop */
+
+    const modalBackdrop =
+      document.getElementById(
+        "modalBackdrop"
+      );
+
+    if (modalBackdrop) {
+      modalBackdrop.addEventListener(
+        "click",
+        closeModal
+      );
+    }
+
+    /* Save habit */
+
+    const saveHabit =
+      document.getElementById(
+        "saveHabit"
+      );
+
+    if (saveHabit) {
+      saveHabit.addEventListener(
+        "click",
+        addHabit
+      );
+    }
+
+    /* Enter to save */
+
+    const habitName =
+      document.getElementById(
+        "habitName"
+      );
+
+    if (habitName) {
+      habitName.addEventListener(
+        "keydown",
+        (event) => {
+          if (
+            event.key === "Enter"
+          ) {
+            addHabit();
+          }
+        }
+      );
+    }
+
+    /* Previous week */
+
+    const prevWeek =
+      document.getElementById(
+        "prevWeek"
+      );
+
+    if (prevWeek) {
+      prevWeek.addEventListener(
+        "click",
+        () => {
+          changeWeek(-1);
+        }
+      );
+    }
+
+    /* Next week */
+
+    const nextWeek =
+      document.getElementById(
+        "nextWeek"
+      );
+
+    if (nextWeek) {
+      nextWeek.addEventListener(
+        "click",
+        () => {
+          changeWeek(1);
+        }
+      );
+    }
+
+    /* Today */
+
+    const todayBtn =
+      document.getElementById(
+        "todayBtn"
+      );
+
+    if (todayBtn) {
+      todayBtn.addEventListener(
+        "click",
+        goToToday
+      );
+    }
+
+    /* Initial render */
+
+    renderAll();
+  }
+);
