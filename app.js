@@ -6,26 +6,10 @@ const state = {
 };
 
 const defaultHabits = [
-  {
-    id: crypto.randomUUID(),
-    name: "Study",
-    completed: {}
-  },
-  {
-    id: crypto.randomUUID(),
-    name: "Workout",
-    completed: {}
-  },
-  {
-    id: crypto.randomUUID(),
-    name: "Read",
-    completed: {}
-  },
-  {
-    id: crypto.randomUUID(),
-    name: "Sleep on time",
-    completed: {}
-  }
+  { id: crypto.randomUUID(), name: "Study", completed: {} },
+  { id: crypto.randomUUID(), name: "Workout", completed: {} },
+  { id: crypto.randomUUID(), name: "Read", completed: {} },
+  { id: crypto.randomUUID(), name: "Sleep on time", completed: {} }
 ];
 
 /* =========================
@@ -41,6 +25,13 @@ function loadData() {
 
       if (Array.isArray(data.habits)) {
         state.habits = data.habits;
+
+        state.habits.forEach(habit => {
+          if (!habit.completed) {
+            habit.completed = {};
+          }
+        });
+
         return;
       }
     }
@@ -124,15 +115,12 @@ function renderWeek() {
   weekLabel.textContent =
     `${formatDate(dates[0])} – ${formatDate(dates[6])}`;
 
-  dates.forEach((date) => {
+  dates.forEach(date => {
     const header = document.createElement("div");
 
     header.className = "date-header";
 
-    if (
-      dateKey(date) ===
-      dateKey(new Date())
-    ) {
+    if (dateKey(date) === dateKey(new Date())) {
       header.classList.add("today");
     }
 
@@ -141,11 +129,9 @@ function renderWeek() {
     day.className = "day";
 
     day.textContent =
-      date
-        .toLocaleDateString(undefined, {
-          weekday: "short"
-        })
-        .slice(0, 2);
+      date.toLocaleDateString(undefined, {
+        weekday: "short"
+      }).slice(0, 2);
 
     const number = document.createElement("span");
 
@@ -185,12 +171,10 @@ function renderHabits() {
     return;
   }
 
-  state.habits.forEach((habit) => {
+  state.habits.forEach(habit => {
     const row = document.createElement("div");
 
     row.className = "habit-row";
-
-    /* Habit name */
 
     const nameCell =
       document.createElement("div");
@@ -203,8 +187,6 @@ function renderHabits() {
     name.className = "habit-name-text";
 
     name.textContent = habit.name;
-
-    /* Delete */
 
     const deleteButton =
       document.createElement("button");
@@ -219,17 +201,13 @@ function renderHabits() {
 
     deleteButton.addEventListener(
       "click",
-      () => {
-        deleteHabit(habit.id);
-      }
+      () => deleteHabit(habit.id)
     );
 
     nameCell.appendChild(name);
     nameCell.appendChild(deleteButton);
 
     row.appendChild(nameCell);
-
-    /* Seven days */
 
     for (let i = 0; i < 7; i++) {
       const date =
@@ -278,17 +256,13 @@ function renderHabits() {
 }
 
 /* =========================
-   TOGGLE HABIT
+   HABIT ACTIONS
 ========================= */
 
-function toggleHabit(
-  habitId,
-  key
-) {
+function toggleHabit(habitId, key) {
   const habit =
     state.habits.find(
-      (item) =>
-        item.id === habitId
+      item => item.id === habitId
     );
 
   if (!habit) return;
@@ -301,15 +275,10 @@ function toggleHabit(
   renderAll();
 }
 
-/* =========================
-   DELETE HABIT
-========================= */
-
 function deleteHabit(habitId) {
   const habit =
     state.habits.find(
-      (item) =>
-        item.id === habitId
+      item => item.id === habitId
     );
 
   if (!habit) return;
@@ -323,8 +292,7 @@ function deleteHabit(habitId) {
 
   state.habits =
     state.habits.filter(
-      (item) =>
-        item.id !== habitId
+      item => item.id !== habitId
     );
 
   saveData();
@@ -332,15 +300,9 @@ function deleteHabit(habitId) {
   renderAll();
 }
 
-/* =========================
-   ADD HABIT
-========================= */
-
 function addHabit() {
   const input =
-    document.getElementById(
-      "habitName"
-    );
+    document.getElementById("habitName");
 
   if (!input) return;
 
@@ -373,21 +335,15 @@ function addHabit() {
 
 function openModal() {
   const modal =
-    document.getElementById(
-      "habitModal"
-    );
+    document.getElementById("habitModal");
 
   if (!modal) return;
 
-  modal.classList.remove(
-    "hidden"
-  );
+  modal.classList.remove("hidden");
 
   setTimeout(() => {
     const input =
-      document.getElementById(
-        "habitName"
-      );
+      document.getElementById("habitName");
 
     if (input) {
       input.focus();
@@ -397,19 +353,15 @@ function openModal() {
 
 function closeModal() {
   const modal =
-    document.getElementById(
-      "habitModal"
-    );
+    document.getElementById("habitModal");
 
   if (!modal) return;
 
-  modal.classList.add(
-    "hidden"
-  );
+  modal.classList.add("hidden");
 }
 
 /* =========================
-   NAVIGATION
+   WEEK NAVIGATION
 ========================= */
 
 function goToToday() {
@@ -430,7 +382,7 @@ function changeWeek(amount) {
 }
 
 /* =========================
-   STATISTICS
+   STATISTICS CALCULATIONS
 ========================= */
 
 function calculateTodayStats() {
@@ -439,16 +391,14 @@ function calculateTodayStats() {
 
   let completed = 0;
 
-  state.habits.forEach(
-    (habit) => {
-      if (
-        habit.completed &&
-        habit.completed[today]
-      ) {
-        completed++;
-      }
+  state.habits.forEach(habit => {
+    if (
+      habit.completed &&
+      habit.completed[today]
+    ) {
+      completed++;
     }
-  );
+  });
 
   const total =
     state.habits.length;
@@ -470,78 +420,259 @@ function calculateTodayStats() {
 function calculateTotalCompletions() {
   let total = 0;
 
-  state.habits.forEach(
-    (habit) => {
-      if (!habit.completed) return;
+  state.habits.forEach(habit => {
+    if (!habit.completed) return;
 
-      Object.values(
-        habit.completed
-      ).forEach((value) => {
-        if (value) {
-          total++;
-        }
-      });
-    }
-  );
+    Object.values(
+      habit.completed
+    ).forEach(value => {
+      if (value) total++;
+    });
+  });
 
   return total;
+}
+
+function getHabitDates(habit) {
+  if (!habit.completed) return [];
+
+  return Object.keys(habit.completed)
+    .filter(key => habit.completed[key])
+    .sort();
+}
+
+function calculateHabitBestStreak(habit) {
+  const dates =
+    getHabitDates(habit);
+
+  if (dates.length === 0) {
+    return 0;
+  }
+
+  let best = 1;
+  let current = 1;
+
+  for (let i = 1; i < dates.length; i++) {
+    const previous =
+      new Date(
+        `${dates[i - 1]}T00:00:00`
+      );
+
+    const currentDate =
+      new Date(
+        `${dates[i]}T00:00:00`
+      );
+
+    const difference =
+      Math.round(
+        (currentDate - previous) /
+        (1000 * 60 * 60 * 24)
+      );
+
+    if (difference === 1) {
+      current++;
+    } else {
+      current = 1;
+    }
+
+    best =
+      Math.max(best, current);
+  }
+
+  return best;
+}
+
+function calculateHabitCurrentStreak(habit) {
+  const dates =
+    getHabitDates(habit);
+
+  if (dates.length === 0) {
+    return 0;
+  }
+
+  const completedSet =
+    new Set(dates);
+
+  let streak = 0;
+
+  let current =
+    new Date();
+
+  current.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  while (
+    completedSet.has(
+      dateKey(current)
+    )
+  ) {
+    streak++;
+
+    current =
+      addDays(current, -1);
+  }
+
+  return streak;
 }
 
 function calculateBestStreak() {
   let best = 0;
 
-  state.habits.forEach(
-    (habit) => {
-      if (!habit.completed) return;
-
-      const dates =
-        Object.keys(
-          habit.completed
-        )
-          .filter(
-            (key) =>
-              habit.completed[key]
-          )
-          .sort();
-
-      let streak = 0;
-      let previous = null;
-
-      dates.forEach((key) => {
-        const current =
-          new Date(
-            `${key}T00:00:00`
-          );
-
-        if (previous) {
-          const difference =
-            (current - previous) /
-            (1000 * 60 * 60 * 24);
-
-          if (difference === 1) {
-            streak++;
-          } else {
-            streak = 1;
-          }
-        } else {
-          streak = 1;
-        }
-
-        best =
-          Math.max(
-            best,
-            streak
-          );
-
-        previous = current;
-      });
-    }
-  );
+  state.habits.forEach(habit => {
+    best =
+      Math.max(
+        best,
+        calculateHabitBestStreak(habit)
+      );
+  });
 
   return best;
 }
 
-function updateStats() {
+function calculateCurrentStreak() {
+  if (state.habits.length === 0) {
+    return 0;
+  }
+
+  let best = 0;
+
+  state.habits.forEach(habit => {
+    best =
+      Math.max(
+        best,
+        calculateHabitCurrentStreak(habit)
+      );
+  });
+
+  return best;
+}
+
+/* =========================
+   WEEKLY STATISTICS
+========================= */
+
+function calculateWeekDayStats() {
+  const results = [];
+
+  for (let i = 0; i < 7; i++) {
+    const date =
+      addDays(
+        state.currentWeekStart,
+        i
+      );
+
+    const key =
+      dateKey(date);
+
+    let completed = 0;
+
+    state.habits.forEach(habit => {
+      if (
+        habit.completed &&
+        habit.completed[key]
+      ) {
+        completed++;
+      }
+    });
+
+    const total =
+      state.habits.length;
+
+    const percentage =
+      total === 0
+        ? 0
+        : Math.round(
+            (completed / total) * 100
+          );
+
+    results.push({
+      date,
+      completed,
+      total,
+      percentage
+    });
+  }
+
+  return results;
+}
+
+function calculateWeeklyPercentage() {
+  const days =
+    calculateWeekDayStats();
+
+  if (state.habits.length === 0) {
+    return 0;
+  }
+
+  let completed = 0;
+  let possible =
+    state.habits.length * 7;
+
+  days.forEach(day => {
+    completed += day.completed;
+  });
+
+  return Math.round(
+    (completed / possible) * 100
+  );
+}
+
+/* =========================
+   HABIT PERFORMANCE
+========================= */
+
+function calculateHabitPercentage(habit) {
+  const dates =
+    getHabitDates(habit);
+
+  if (dates.length === 0) {
+    return 0;
+  }
+
+  const today =
+    new Date();
+
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  const firstDate =
+    new Date(
+      `${dates[0]}T00:00:00`
+    );
+
+  const difference =
+    Math.floor(
+      (today - firstDate) /
+      (1000 * 60 * 60 * 24)
+    ) + 1;
+
+  const possible =
+    Math.max(
+      difference,
+      dates.length
+    );
+
+  return Math.min(
+    100,
+    Math.round(
+      (dates.length / possible) * 100
+    )
+  );
+}
+
+/* =========================
+   UPDATE HOME STATS
+========================= */
+
+function updateHomeStats() {
   const stats =
     calculateTodayStats();
 
@@ -624,37 +755,391 @@ function updateStats() {
 }
 
 /* =========================
-   RENDER EVERYTHING
+   STATS DASHBOARD
+========================= */
+
+function updateStatsDashboard() {
+  const todayStats =
+    calculateTodayStats();
+
+  const todayPercentage =
+    document.getElementById(
+      "statsTodayPercentage"
+    );
+
+  const todayText =
+    document.getElementById(
+      "statsTodayText"
+    );
+
+  const ringValue =
+    document.getElementById(
+      "statsRingValue"
+    );
+
+  const totalHabits =
+    document.getElementById(
+      "statsTotalHabits"
+    );
+
+  const completedToday =
+    document.getElementById(
+      "statsCompletedToday"
+    );
+
+  const currentStreak =
+    document.getElementById(
+      "statsCurrentStreak"
+    );
+
+  const bestStreak =
+    document.getElementById(
+      "statsBestStreak"
+    );
+
+  const totalCompletions =
+    document.getElementById(
+      "statsTotalCompletions"
+    );
+
+  const weeklyPercentage =
+    document.getElementById(
+      "statsWeeklyPercentage"
+    );
+
+  if (todayPercentage) {
+    todayPercentage.textContent =
+      `${todayStats.percentage}%`;
+  }
+
+  if (todayText) {
+    todayText.textContent =
+      `${todayStats.completed} of ${todayStats.total} habits completed`;
+  }
+
+  if (ringValue) {
+    ringValue.textContent =
+      `${todayStats.percentage}%`;
+  }
+
+  if (totalHabits) {
+    totalHabits.textContent =
+      state.habits.length;
+  }
+
+  if (completedToday) {
+    completedToday.textContent =
+      todayStats.completed;
+  }
+
+  if (currentStreak) {
+    currentStreak.textContent =
+      calculateCurrentStreak();
+  }
+
+  if (bestStreak) {
+    bestStreak.textContent =
+      calculateBestStreak();
+  }
+
+  if (totalCompletions) {
+    totalCompletions.textContent =
+      calculateTotalCompletions();
+  }
+
+  if (weeklyPercentage) {
+    weeklyPercentage.textContent =
+      `${calculateWeeklyPercentage()}%`;
+  }
+
+  renderWeeklyPerformance();
+  renderHabitPerformance();
+}
+
+/* =========================
+   WEEKLY PERFORMANCE UI
+========================= */
+
+function renderWeeklyPerformance() {
+  const container =
+    document.getElementById(
+      "weeklyPerformance"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const days =
+    calculateWeekDayStats();
+
+  if (state.habits.length === 0) {
+    const empty =
+      document.createElement("div");
+
+    empty.className =
+      "no-stats";
+
+    empty.textContent =
+      "Add habits to see your weekly performance.";
+
+    container.appendChild(empty);
+
+    return;
+  }
+
+  days.forEach(day => {
+    const wrapper =
+      document.createElement("div");
+
+    wrapper.className =
+      "week-day";
+
+    const barContainer =
+      document.createElement("div");
+
+    barContainer.className =
+      "week-bar-container";
+
+    const bar =
+      document.createElement("div");
+
+    bar.className =
+      "week-bar";
+
+    bar.style.height =
+      `${Math.max(
+        day.percentage,
+        3
+      )}%`;
+
+    barContainer.appendChild(bar);
+
+    const dayName =
+      document.createElement("span");
+
+    dayName.className =
+      "week-day-name";
+
+    dayName.textContent =
+      day.date
+        .toLocaleDateString(
+          undefined,
+          {
+            weekday: "short"
+          }
+        )
+        .slice(0, 2);
+
+    const value =
+      document.createElement("span");
+
+    value.className =
+      "week-day-value";
+
+    value.textContent =
+      `${day.percentage}%`;
+
+    wrapper.appendChild(
+      barContainer
+    );
+
+    wrapper.appendChild(
+      dayName
+    );
+
+    wrapper.appendChild(
+      value
+    );
+
+    container.appendChild(
+      wrapper
+    );
+  });
+}
+
+/* =========================
+   HABIT PERFORMANCE UI
+========================= */
+
+function renderHabitPerformance() {
+  const container =
+    document.getElementById(
+      "habitPerformance"
+    );
+
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (state.habits.length === 0) {
+    const empty =
+      document.createElement("div");
+
+    empty.className =
+      "no-stats";
+
+    empty.textContent =
+      "Add your first habit to see performance.";
+
+    container.appendChild(empty);
+
+    return;
+  }
+
+  state.habits.forEach(habit => {
+    const percentage =
+      calculateHabitPercentage(
+        habit
+      );
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "habit-performance-row";
+
+    const name =
+      document.createElement("div");
+
+    name.className =
+      "habit-performance-name";
+
+    name.textContent =
+      habit.name;
+
+    const track =
+      document.createElement("div");
+
+    track.className =
+      "habit-progress-track";
+
+    const fill =
+      document.createElement("div");
+
+    fill.className =
+      "habit-progress-fill";
+
+    fill.style.width =
+      `${percentage}%`;
+
+    track.appendChild(fill);
+
+    const percent =
+      document.createElement("div");
+
+    percent.className =
+      "habit-performance-percent";
+
+    percent.textContent =
+      `${percentage}%`;
+
+    row.appendChild(name);
+    row.appendChild(track);
+    row.appendChild(percent);
+
+    container.appendChild(row);
+  });
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function showHabits() {
+  const habitsSection =
+    document.getElementById(
+      "habitsSection"
+    );
+
+  const statsSection =
+    document.getElementById(
+      "statsSection"
+    );
+
+  if (habitsSection) {
+    habitsSection.classList.remove(
+      "hidden"
+    );
+  }
+
+  if (statsSection) {
+    statsSection.classList.add(
+      "hidden"
+    );
+  }
+
+  setActiveNav("habitsNav");
+}
+
+function showStats() {
+  const habitsSection =
+    document.getElementById(
+      "habitsSection"
+    );
+
+  const statsSection =
+    document.getElementById(
+      "statsSection"
+    );
+
+  if (habitsSection) {
+    habitsSection.classList.add(
+      "hidden"
+    );
+  }
+
+  if (statsSection) {
+    statsSection.classList.remove(
+      "hidden"
+    );
+  }
+
+  updateStatsDashboard();
+
+  setActiveNav("statsNav");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function setActiveNav(id) {
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(item => {
+      item.classList.remove(
+        "active"
+      );
+    });
+
+  const active =
+    document.getElementById(id);
+
+  if (active) {
+    active.classList.add(
+      "active"
+    );
+  }
+}
+
+/* =========================
+   RENDER ALL
 ========================= */
 
 function renderAll() {
   renderWeek();
   renderHabits();
-  updateStats();
-}
+  updateHomeStats();
 
-/* =========================
-   STATS NAVIGATION
-========================= */
-
-function openStats() {
-  const statsSection =
-    document.querySelector(
-      ".stats-grid"
-    );
-
-  if (!statsSection) {
-    console.warn(
-      "Stats section not found."
-    );
-
-    return;
+  if (
+    !document
+      .getElementById("statsSection")
+      ?.classList.contains("hidden")
+  ) {
+    updateStatsDashboard();
   }
-
-  statsSection.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
 }
 
 /* =========================
@@ -664,9 +1149,10 @@ function openStats() {
 document.addEventListener(
   "DOMContentLoaded",
   () => {
+
     loadData();
 
-    /* Add button */
+    /* Add top button */
 
     const addHabitBtn =
       document.getElementById(
@@ -680,7 +1166,35 @@ document.addEventListener(
       );
     }
 
-    /* Bottom Add */
+    /* Habits navigation */
+
+    const habitsNav =
+      document.getElementById(
+        "habitsNav"
+      );
+
+    if (habitsNav) {
+      habitsNav.addEventListener(
+        "click",
+        showHabits
+      );
+    }
+
+    /* Stats navigation */
+
+    const statsNav =
+      document.getElementById(
+        "statsNav"
+      );
+
+    if (statsNav) {
+      statsNav.addEventListener(
+        "click",
+        showStats
+      );
+    }
+
+    /* Add navigation */
 
     const addNav =
       document.getElementById(
@@ -691,20 +1205,6 @@ document.addEventListener(
       addNav.addEventListener(
         "click",
         openModal
-      );
-    }
-
-    /* Stats */
-
-    const statsNav =
-      document.getElementById(
-        "statsNav"
-      );
-
-    if (statsNav) {
-      statsNav.addEventListener(
-        "click",
-        openStats
       );
     }
 
@@ -750,7 +1250,7 @@ document.addEventListener(
       );
     }
 
-    /* Enter to save */
+    /* Enter to add */
 
     const habitName =
       document.getElementById(
@@ -760,7 +1260,7 @@ document.addEventListener(
     if (habitName) {
       habitName.addEventListener(
         "keydown",
-        (event) => {
+        event => {
           if (
             event.key === "Enter"
           ) {
@@ -816,7 +1316,9 @@ document.addEventListener(
       );
     }
 
-    /* Initial render */
+    /* Start */
+
+    showHabits();
 
     renderAll();
   }
