@@ -1,0 +1,11 @@
+{
+  "name": "Habit Grid",
+  "short_name": "Habit Grid",
+  "description": "A simple personal habit tracker.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f5f0",
+  "theme_color": "#f5f5f0",
+  "orientation": "portrait",
+  "icons": []
+}
